@@ -298,18 +298,18 @@ def render_app(df):
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{{
-  --bg:#0c0e14;--surface:#12141e;--surface2:#181b27;--surface3:#1f2230;
-  --border:#252838;--border2:#2e3248;
-  --axis-col:#f0a742;--axis-dim:rgba(240,167,66,0.12);--axis-glow:rgba(240,167,66,0.3);
-  --dsp-col:#5bbcf8;--dsp-dim:rgba(91,188,248,0.12);--dsp-glow:rgba(91,188,248,0.3);
-  --gain:#52d98c;--loss:#ff6b6b;
-  --text1:#e8eaf6;--text2:#9499b8;--text3:#555a78;--r:14px;
+  --bg:#1c1c1c;--surface:#262626;--surface2:#2f2f2f;--surface3:#383838;
+  --border:#404040;--border2:#505050;
+  --axis-col:#c9933a;--axis-dim:rgba(201,147,58,0.14);--axis-glow:rgba(201,147,58,0.3);
+  --dsp-col:#5aaee0;--dsp-dim:rgba(90,174,224,0.14);--dsp-glow:rgba(90,174,224,0.3);
+  --gain:#4ec98a;--loss:#e05a5a;
+  --text1:#ffffff;--text2:#cccccc;--text3:#888888;--r:14px;
 }}
 *{{margin:0;padding:0;box-sizing:border-box;}}
 body{{background:var(--bg);color:var(--text1);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden;}}
 .blob{{position:fixed;border-radius:50%;filter:blur(110px);pointer-events:none;z-index:0;}}
-.b1{{width:600px;height:600px;background:rgba(240,167,66,0.05);top:-180px;left:-180px;}}
-.b2{{width:500px;height:500px;background:rgba(91,188,248,0.05);bottom:-150px;right:-120px;}}
+.b1{{width:600px;height:600px;background:rgba(201,147,58,0.06);top:-180px;left:-180px;}}
+.b2{{width:500px;height:500px;background:rgba(90,174,224,0.06);bottom:-150px;right:-120px;}}
 .wrap{{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:32px 20px 80px;}}
 /* header */
 .hd{{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:20px;flex-wrap:wrap;}}
@@ -337,8 +337,8 @@ body{{background:var(--bg);color:var(--text1);font-family:'Outfit',sans-serif;mi
 .vs{{margin-bottom:36px;}}
 .vh{{display:flex;align-items:center;gap:11px;margin-bottom:14px;}}
 .vp{{font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;border-radius:20px;font-family:'DM Mono',monospace;}}
-.vp.a{{background:var(--axis-dim);color:var(--axis-col);border:1px solid rgba(240,167,66,.2);}}
-.vp.d{{background:var(--dsp-dim);color:var(--dsp-col);border:1px solid rgba(91,188,248,.2);}}
+.vp.a{{background:var(--axis-dim);color:var(--axis-col);border:1px solid rgba(201,147,58,.25);}}
+.vp.d{{background:var(--dsp-dim);color:var(--dsp-col);border:1px solid rgba(90,174,224,.25);}}
 .vt{{font-size:1.1rem;font-weight:600;letter-spacing:-.2px;}}
 .vl{{flex:1;height:1px;background:var(--border);}}
 .vs2{{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--text3);white-space:nowrap;}}
@@ -470,7 +470,7 @@ function drawChart(){{
       plugins:{{
         legend:{{display:false}},
         tooltip:{{
-          backgroundColor:'#1a1d27',borderColor:'#2e3248',borderWidth:1,
+          backgroundColor:'#2a2a2a',borderColor:'#484848',borderWidth:1,
           titleColor:'#9499b8',bodyColor:'#e8eaf6',padding:14,
           titleFont:{{family:'DM Mono',size:11}},bodyFont:{{family:'DM Mono',size:12}},
           callbacks:{{
@@ -481,16 +481,16 @@ function drawChart(){{
       }},
       scales:{{
         x:{{type:'linear',min:minX,max:maxX,
-          grid:{{color:'rgba(255,255,255,0.04)',drawTicks:false}},
+          grid:{{color:'rgba(255,255,255,0.06)',drawTicks:false}},
           ticks:{{color:'#555a78',font:{{family:'DM Mono',size:10}},maxRotation:0,maxTicksLimit:12,callback:v=>fmtTick(v)}},
           afterBuildTicks(axis){{axis.ticks=buildTicks(Math.min(...allX),Math.max(...allX),12).map(v=>({{value:v}}));}},
-          border:{{color:'#252838'}}
+          border:{{color:'#404040'}}
         }},
         y:{{
           title:{{display:true,text:'Amount Invested (₹)',color:'#555a78',font:{{family:'DM Mono',size:10}}}},
-          grid:{{color:'rgba(255,255,255,0.04)',drawTicks:false}},
+          grid:{{color:'rgba(255,255,255,0.06)',drawTicks:false}},
           ticks:{{color:'#555a78',font:{{family:'DM Mono',size:10}},callback:v=>v>=1000?'₹'+(v/1000).toFixed(0)+'k':'₹'+v,maxTicksLimit:8}},
-          border:{{color:'#252838'}}
+          border:{{color:'#404040'}}
         }}
       }}
     }}
@@ -508,26 +508,26 @@ function drawChart(){{
 # Hide Streamlit chrome and make background dark
 st.markdown("""
 <style>
-[data-testid="stAppViewContainer"] { background: #0c0e14; }
+[data-testid="stAppViewContainer"] { background: #1c1c1c; }
 [data-testid="stHeader"] { background: transparent; }
-[data-testid="stSidebar"] { background: #12141e; border-right: 1px solid #252838; }
+[data-testid="stSidebar"] { background: #222222; border-right: 1px solid #3a3a3a; }
 [data-testid="stFileUploader"] {
-    background: #12141e; border: 1px dashed #2e3248;
+    background: #262626; border: 1px dashed #505050;
     border-radius: 14px; padding: 20px;
 }
-[data-testid="stFileUploader"] * { color: #9499b8 !important; }
+[data-testid="stFileUploader"] * { color: #cccccc !important; }
 .stButton>button {
-    background: #1f2230; color: #e8eaf6;
-    border: 1px solid #252838; border-radius: 10px;
+    background: #303030; color: #ffffff;
+    border: 1px solid #404040; border-radius: 10px;
 }
-div[data-testid="stMarkdownContainer"] p { color: #9499b8; }
+div[data-testid="stMarkdownContainer"] p { color: #cccccc; }
 </style>
 """, unsafe_allow_html=True)
 
 # Sidebar uploader
 with st.sidebar:
     st.markdown("""
-    <div style="font-family:'DM Mono',monospace;font-size:.7rem;color:#555a78;
+    <div style="font-family:'DM Mono',monospace;font-size:.7rem;color:#888888;
          text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;">
         MF Portfolio Tracker
     </div>
@@ -540,7 +540,7 @@ with st.sidebar:
     )
 
     st.markdown("""
-    <div style="font-family:'DM Mono',monospace;font-size:.65rem;color:#3a3f58;
+    <div style="font-family:'DM Mono',monospace;font-size:.65rem;color:#666666;
          margin-top:24px;line-height:1.8;">
         Expected columns:<br>
         Vendor · Active · N Identifier<br>
@@ -555,10 +555,10 @@ if uploaded is None:
     st.markdown("""
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
          height:80vh;font-family:'Outfit',sans-serif;text-align:center;">
-      <div style="font-family:Georgia,serif;font-size:3rem;font-weight:400;color:#e8eaf6;letter-spacing:-.5px;">
-        Portfolio <em style="color:#f0a742;font-style:italic;">Tracker</em>
+      <div style="font-family:Georgia,serif;font-size:3rem;font-weight:400;color:#ffffff;letter-spacing:-.5px;">
+        Portfolio <em style="color:#c9933a;font-style:italic;">Tracker</em>
       </div>
-      <div style="font-size:.85rem;color:#555a78;font-family:'DM Mono',monospace;
+      <div style="font-size:.85rem;color:#888888;font-family:'DM Mono',monospace;
            text-transform:uppercase;letter-spacing:.12em;margin-top:12px;">
         Upload your CSV in the sidebar to begin
       </div>
