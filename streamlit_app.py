@@ -4,12 +4,33 @@ import json
 from datetime import datetime
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import requests
+
+SCHEMES = {
+    "E": "SM008001",
+    "C": "SM008002",
+    "G": "SM008003"
+}
+
+
 
 st.set_page_config(
     page_title="Portfolio Tracker",
     page_icon="📈",
     layout="wide",
 )
+
+
+def fetch_latest_nav(scheme_code):
+    url = f"https://npsnav.in/api/{scheme_code}"
+    res = requests.get(url)
+    data = res.json()
+
+    df = pd.DataFrame(data)
+    df["date"] = pd.to_datetime(df["date"], format="%d-%m-%Y")
+    df["nav"] = df["nav"].astype(float)
+
+    return df.sort_values("date").iloc[-1]["nav"]
 
 # ── helpers ────────────────────────────────────────────────────────────────
 
@@ -415,19 +436,72 @@ def load_nps_data(uploaded_file):
 
 
 def render_nps_tab(df):
-    total_invested = df["amount"].sum()
-    total_units    = df["units"].sum()
-    latest_nav     = df.loc[df["date_parsed"].idxmax(), "nav"]
-    current_val    = total_units * latest_nav
-    gain           = current_val - total_invested
+    # total_invested = df["amount"].sum()
+    # total_units    = df["units"].sum()
+    # latest_nav     = df.loc[df["date_parsed"].idxmax(), "nav"]
+    # current_val    = total_units * latest_nav
+    # gain           = current_val - total_invested
+
+    # group by scheme (E, C, G)
+    scheme_map = {
+        "E": "Equity",
+        "C": "Corporate Bond",
+        "G": "Govt Sec"
+    }
+    
+    units = {}
+    invested = {}
+    
+    for k, v in scheme_map.items():
+        sub = df[df["category"] == v]
+        units[k] = sub["units"].sum()
+        invested[k] = sub["amount"].sum()
+    
+    # fetch latest NAV
+    latest_navs = {k: fetch_latest_nav(SCHEMES[k]) for k in ["E","C","G"]}
+    
+    summary_rows = []
+    
+    for k in ["E","C","G"]:
+        current_val = units[k] * latest_navs[k]
+    
+        summary_rows.append({
+            "Scheme": k,
+            "Units": units[k],
+            "NAV": latest_navs[k],
+            "Current Value": current_val,
+            "Invested": invested[k]
+        })
+    
+    summary_df = pd.DataFrame(summary_rows)
+    
+    total_value = summary_df["Current Value"].sum()
+    total_invested = summary_df["Invested"].sum()
+    
+    profit = total_value - total_invested
+    profit_pct = (profit / total_invested) * 100 if total_invested else 0
 
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Total Invested",     fmt_inr(total_invested))
-    c2.metric("Total Units",        f"{total_units:,.2f}")
+    # c2.metric("Total Units",        f"{total_units:,.2f}")
     c3.metric("Latest NAV",         f"₹{latest_nav:.2f}")
     c4.metric("Est. Current Value", fmt_inr(current_val), delta=fmt_inr(gain))
 
+    st.markdown("### Scheme Breakdown")
+    
+    for _, r in summary_df.iterrows():
+        a_c1, a_c2, a_c3, a_c4 = st.columns(4)
+        a_c1.metric(f"{r['Scheme']} Units", f"{r['Units']:.2f}")
+        a_c2.metric(f"{r['Scheme']} NAV", f"₹{r['NAV']:.2f}")
+        a_c3.metric(f"{r['Scheme']} Value", fmt_inr(r["Current Value"]))
+        a_c4.metric(f"{r['Scheme']} Invested", fmt_inr(r["Invested"]))
+
     st.divider()
+    st.metric(
+        "Est. Current Value",
+        fmt_inr(total_value),
+        delta=f"{fmt_inr(profit)} ({fmt_pct(profit_pct)})"
+    )
 
     fc1, fc2 = st.columns([3, 1])
     with fc1:
@@ -448,8 +522,8 @@ def render_nps_tab(df):
         "Equity":         "#c9933a",
         "Debt":           "#5aaee0",
         "Balanced":       "#9b7fd4",
-        "Corporate Bond": "#4ec98a",
-        "Govt Sec":       "#e05a5a",
+        "Corporate Bond": "#5aaee0",
+        "Govt Sec":       "#4ec98a",
     }
 
     daily = dff.groupby("date_parsed").agg(
