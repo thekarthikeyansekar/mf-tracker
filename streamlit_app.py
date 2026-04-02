@@ -30,7 +30,7 @@ def fetch_latest_nav(scheme_code):
     df["date"] = pd.to_datetime(df["date"], format="%d-%m-%Y")
     df["nav"] = df["nav"].astype(float)
 
-    return df.sort_values("date").iloc[-1]["nav"]
+    return { scheme_code : df.sort_values("date").iloc[-1]["nav"]}
 
 # ── helpers ────────────────────────────────────────────────────────────────
 
