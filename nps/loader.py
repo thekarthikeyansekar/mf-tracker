@@ -34,6 +34,8 @@ def load_nps_data(uploaded_file):
     df2["nav"]         = df[nav_col].apply(clean_num) if nav_col else 0.0
     df2["units"]       = df[units_col].apply(clean_num) if units_col else 0.0
     df2["date_parsed"] = df[date_col].apply(parse_date) if date_col else None
+    df2['current_nav'] = None
 
     df2 = df2[df2["date_parsed"].notna() & (df2["amount"] > 0)]
+    
     return df2.reset_index(drop=True)

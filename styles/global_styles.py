@@ -24,3 +24,15 @@ def inject_styles():
     div[data-testid="stMarkdownContainer"] p { color:#ccc; }
     </style>
     """, unsafe_allow_html=True)
+
+
+    st.markdown("""
+        <style>
+            .block-container {
+                padding-top: 0rem;
+                padding-bottom: 1rem;
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        </style>
+    """, unsafe_allow_html=True)

@@ -29,14 +29,10 @@ inject_styles()
 # ══════════════════════════════════════════════════════════════════════════
 
 st.markdown("""
-<div style="margin-bottom:24px;">
+<div style="margin-bottom:10px;">
   <div style="font-family:'Fraunces',Georgia,serif;font-size:2.2rem;font-weight:400;
        color:#fff;letter-spacing:-.5px;line-height:1.1;">
     Portfolio <em style="font-style:italic;color:#c9933a;font-weight:300;">Tracker</em>
-  </div>
-  <div style="font-family:'DM Mono',monospace;font-size:.68rem;color:#555;
-       text-transform:uppercase;letter-spacing:.12em;margin-top:7px;">
-    Mutual Funds &nbsp;·&nbsp; NPS &nbsp;·&nbsp; Upload a CSV in each tab
   </div>
 </div>
 """, unsafe_allow_html=True)
