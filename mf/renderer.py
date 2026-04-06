@@ -1,7 +1,7 @@
 import streamlit as st
 from utils.helpers import fmt_inr, fmt_pct
 from mf.aggregator import aggregate_by_fund
-
+import json
 
 def build_table_html(rows_df, folio_label):
     if rows_df.empty:
