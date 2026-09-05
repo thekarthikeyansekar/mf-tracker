@@ -49,6 +49,13 @@ def build_vendor_section(df, vendor, vendor_class):
         return ""
     t_inv = sub["invested"].sum()
     t_cur = sub["current"].sum()
+    dated_rows = sub[sub["date_parsed"].notna()]
+    v_xirr = sub["xirr"].mean()
+    if len(dated_rows) > 1:
+        v_years = ((dated_rows["date_parsed"].max() -
+                    dated_rows["date_parsed"].min()).days / 365.25)
+    else:
+        v_years = 0
     tables_html = ""
     for f_id, grp in sub.groupby("f_id", sort=False):
         agg = aggregate_by_fund(df, vendor, f_id)
@@ -59,7 +66,7 @@ def build_vendor_section(df, vendor, vendor_class):
         <span class="vp {vendor_class}">{vendor}</span>
         <span class="vt">{vendor} Mutual Fund</span>
         <div class="vl"></div>
-        <div class="vs2">Invested <b>{fmt_inr(t_inv)}</b> &nbsp;·&nbsp; Current <b>{fmt_inr(t_cur)}</b></div>
+        <div class="vs2">Invested <b>{fmt_inr(t_inv)}</b> &nbsp;·&nbsp; Current <b>{fmt_inr(t_cur)}</b> &nbsp;·&nbsp; XIRR <b class="{('g' if v_xirr >= 0 else 'l')}">{fmt_pct(v_xirr)}</b> &nbsp;·&nbsp; Years <b>{v_years:.1f}</b></div>
       </div>
       {tables_html}
     </div>"""
@@ -85,6 +92,36 @@ def render_mf_tab(df):
                     "label": str(r["n_id"]), "vendor": str(r["vendor"])})
     scatter_json = json.dumps(pts)
 
+    fund_plots = []
+    for fund, group in df.groupby("n_id", sort=False):
+      dated = group[
+          group["date_parsed"].notna() & (group["nav"] > 0)
+      ].sort_values("date_parsed")
+      points = [
+        {"x": row["date_parsed"].strftime("%Y-%m-%d"),
+         "y": float(row["bought_nav"]),
+         "vendor": str(row["vendor"])}
+        for _, row in dated.iterrows()
+      ]
+      nav_rows = dated[dated["nav"] > 0]
+      current_nav = float(nav_rows.iloc[-1]["nav"]) if not nav_rows.empty else None
+      if points:
+        fund_plots.append({"name": str(fund), "vendor": str(group["vendor"].iloc[0]),
+               "points": points, "current_nav": current_nav})
+    fund_plots_json = json.dumps(fund_plots)
+    fund_vendors = [vendor for vendor in ("Axis", "DSP")
+                    if any(plot["vendor"] == vendor for plot in fund_plots)]
+    fund_vendor_tabs = "".join(
+        f'<button class="fund-vendor-tab{" on" if i == 0 else ""}" '
+        f'onclick="window.showFundVendor(\'{vendor}\',this)">{vendor}</button>'
+        for i, vendor in enumerate(fund_vendors)
+    )
+    fund_vendor_panels = "".join(
+        f'<div class="fund-vendor-panel{" on" if i == 0 else ""}" id="fp-{vendor}">'
+        f'<div class="fund-grid" id="fund-grid-{vendor}"></div></div>'
+        for i, vendor in enumerate(fund_vendors)
+    )
+
     dates = [d for d in df["date_parsed"] if d is not None]
     date_range = (f"{min(dates).strftime('%b %Y')} – {max(dates).strftime('%b %Y')}"
                   if dates else "")
@@ -102,9 +139,9 @@ def render_mf_tab(df):
         bm = df_d.groupby("ym")["amt"].sum()
         cards = [
             ("Total Transactions", str(len(df_d)), f"{axis_tx} Axis · {dsp_tx} DSP"),
-            ("Largest Ticket", fmt_inr(lg["amt"]),
+            ("Largest Amount", fmt_inr(lg["amt"]),
              f"{lg['date_parsed'].strftime('%d %b %Y')} · {str(lg['n_id'])[:30]}"),
-            ("Smallest Ticket", fmt_inr(sm["amt"]),
+            ("Smallest Amount", fmt_inr(sm["amt"]),
              f"{sm['date_parsed'].strftime('%d %b %Y')} · {str(sm['n_id'])[:30]}"),
             ("Most Active Month", bm.idxmax(), fmt_inr(bm.max()) + " invested"),
             ("Axis Transactions", str(axis_tx), "entries"),
@@ -117,7 +154,7 @@ def render_mf_tab(df):
 
     HTML = f"""<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 <style>
 :root{{--bg:#1c1c1c;--sf:#262626;--sf2:#2f2f2f;--sf3:#383838;--bd:#404040;--bd2:#505050;
   --ac:#c9933a;--adim:rgba(201,147,58,.14);--dc:#5aaee0;--ddim:rgba(90,174,224,.14);
@@ -127,7 +164,7 @@ body{{background:var(--bg);color:var(--t1);font-family:'Outfit',sans-serif;}}
 .blob{{position:fixed;border-radius:50%;filter:blur(110px);pointer-events:none;z-index:0;}}
 .b1{{width:600px;height:600px;background:rgba(201,147,58,.06);top:-180px;left:-180px;}}
 .b2{{width:500px;height:500px;background:rgba(90,174,224,.06);bottom:-150px;right:-120px;}}
-.wrap{{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:28px 20px 60px;}}
+.wrap{{position:relative;z-index:1;width:100%;max-width:none;margin:0;padding:32px clamp(24px,4vw,64px) 72px;}}
 .hd{{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:20px;flex-wrap:wrap;}}
 .hd h1{{font-family:'Fraunces',serif;font-size:2rem;font-weight:400;letter-spacing:-.5px;}}
 .hd h1 em{{font-style:italic;color:var(--ac);font-weight:300;}}
@@ -153,7 +190,7 @@ body{{background:var(--bg);color:var(--t1);font-family:'Outfit',sans-serif;}}
 .vp.d{{background:var(--ddim);color:var(--dc);border:1px solid rgba(90,174,224,.25);}}
 .vt{{font-size:1.1rem;font-weight:600;letter-spacing:-.2px;}}
 .vl{{flex:1;height:1px;background:var(--bd);}}
-.vs2{{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--t3);white-space:nowrap;}}
+.vs2{{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--t3);white-space:normal;text-align:right;line-height:1.7;}}
 .vs2 b{{color:var(--t2);font-weight:500;}}
 .fg{{margin-bottom:18px;}}
 .ft{{display:inline-flex;align-items:center;gap:6px;font-size:.64rem;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;font-family:'DM Mono',monospace;margin-bottom:9px;padding:3px 10px 3px 8px;background:var(--sf2);border-radius:20px;border:1px solid var(--bd);}}
@@ -180,14 +217,26 @@ td:first-child{{text-align:left;font-family:'Outfit',sans-serif;font-size:.78rem
 .li{{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--t2);}}
 .ld{{width:10px;height:10px;border-radius:50%;}}
 .lv{{font-family:'DM Mono',monospace;font-weight:500;}}
-.cc{{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:24px;position:relative;}}
+.cc{{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:28px;position:relative;}}
 .cc::before{{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 5%,var(--ac) 30%,var(--dc) 70%,transparent 95%);opacity:.35;border-radius:var(--r) var(--r) 0 0;}}
-.cw{{position:relative;height:400px;}}
+.cw{{position:relative;height:440px;}}
 .ins{{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;margin-top:16px;}}
 .ic{{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;}}
 .il{{font-size:.58rem;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;font-family:'DM Mono',monospace;margin-bottom:5px;}}
 .iv{{font-size:1rem;font-weight:600;font-family:'DM Mono',monospace;}}
 .is{{font-size:.7rem;color:var(--t3);margin-top:3px;}}
+.fund-grid{{display:grid;grid-template-columns:repeat(2,minmax(360px,1fr));gap:24px;}}
+.fund-vendor-tabs{{display:flex;gap:4px;margin-bottom:20px;}}
+.fund-vendor-tab{{background:var(--sf2);border:1px solid var(--bd);border-radius:9px;color:var(--t3);cursor:pointer;font-family:'DM Mono',monospace;font-size:.68rem;padding:9px 18px;text-transform:uppercase;}}
+.fund-vendor-tab.on{{background:var(--sf3);color:var(--t1);border-color:var(--bd2);}}
+.fund-vendor-panel{{display:none;}} .fund-vendor-panel.on{{display:block;animation:up .22s ease;}}
+.fund-card{{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:22px;min-width:0;}}
+.fund-card-hd{{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;}}
+.fund-name{{font-size:.85rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}}
+.fund-nav{{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--loss);white-space:nowrap;}}
+.fund-cw{{height:320px;position:relative;}}
+.fund-note{{font-size:.68rem;color:var(--t3);margin-bottom:14px;}}
+@media(max-width:900px){{.fund-grid{{grid-template-columns:1fr;}}.vs2{{text-align:left;}}}}
 </style></head><body>
 <div class="blob b1"></div><div class="blob b2"></div>
 <div class="wrap">
@@ -204,8 +253,9 @@ td:first-child{{text-align:left;font-family:'Outfit',sans-serif;font-size:.78rem
     </div>
   </div>
   <div class="tabs">
-    <button class="tb on" onclick="sw('h',this)"><span></span>Holdings</button>
-    <button class="tb"    onclick="sw('t',this)"><span></span>Investment Journey</button>
+    <button class="tb on" onclick="window.sw('h',this)"><span></span>Holdings</button>
+    <button class="tb"    onclick="window.sw('t',this)"><span></span>Investment Journey</button>
+    <button class="tb"    onclick="window.sw('f',this)"><span></span>Fund-wise Tracker</button>
   </div>
   <div class="panel on" id="p-h">{holdings_html}</div>
   <div class="panel" id="p-t">
@@ -219,52 +269,110 @@ td:first-child{{text-align:left;font-family:'Outfit',sans-serif;font-size:.78rem
         <div class="li"><div class="ld" style="background:var(--dc)"></div><span>DSP</span><span class="lv" style="color:var(--dc)">{dsp_tx} tx</span></div>
       </div>
     </div>
-    <div class="cc"><div class="cw"><canvas id="chart"></canvas></div></div>
+    <div class="cc"><div class="cw" id="chart"></div></div>
     {insights_html}
+  </div>
+  <div class="panel" id="p-f">
+    <div class="ch-hd">
+      <div>
+        <div class="ch-title">Fund-wise <em>Investment Tracker</em></div>
+        <div class="ch-sub">One plot per fund &middot; invested NAV by transaction date</div>
+      </div>
+    </div>
+    <div class="fund-note">The red dotted line marks the latest NAV when a NAV column is provided in the CSV.</div>
+    <div class="fund-vendor-tabs">{fund_vendor_tabs}</div>
+    {fund_vendor_panels}
   </div>
 </div>
 <script>
-function sw(id,btn){{
+window.sw = function(id,btn){{
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
   document.getElementById('p-'+id).classList.add('on');
   btn.classList.add('on');
   if(id==='t') setTimeout(drawChart,80);
-}}
+  if(id==='f') setTimeout(drawFundCharts,80);
+}};
+window.showFundVendor = function(vendor,btn){{
+  document.querySelectorAll('.fund-vendor-panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.fund-vendor-tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('fp-'+vendor).classList.add('on');
+  btn.classList.add('on');
+}};
+</script>
+<script>
 const RAW={scatter_json};
+const FUND_RAW={fund_plots_json};
 function radius(amt){{return Math.max(5,Math.min(26,Math.sqrt(amt/500)*5));}}
 function fmtD(ms){{return new Date(ms).toLocaleDateString('en-IN',{{day:'numeric',month:'short',year:'numeric'}});}}
 function buildTicks(mn,mx,n){{const s=(mx-mn)/(n-1);return Array.from({{length:n}},(_,i)=>mn+i*s);}}
 let drawn=false;
+let fundChartsDrawn=false;
 function drawChart(){{
   if(drawn)return;drawn=true;
-  const ax=RAW.filter(d=>d.vendor==='Axis').map(d=>({{x:new Date(d.iso).getTime(),y:d.y,iso:d.iso,label:d.label,r:radius(d.y)}}));
-  const ds=RAW.filter(d=>d.vendor==='DSP').map(d=>({{x:new Date(d.iso).getTime(),y:d.y,iso:d.iso,label:d.label,r:radius(d.y)}}));
-  const allX=RAW.map(d=>new Date(d.iso).getTime());
-  const mn=Math.min(...allX),mx=Math.max(...allX);
-  new Chart(document.getElementById('chart').getContext('2d'),{{
-    type:'bubble',
-    data:{{datasets:[
-      {{label:'Axis',data:ax,backgroundColor:'rgba(240,167,66,.55)',borderColor:'rgba(240,167,66,.88)',borderWidth:1.5,hoverBorderWidth:2}},
-      {{label:'DSP', data:ds,backgroundColor:'rgba(91,188,248,.5)', borderColor:'rgba(91,188,248,.88)',borderWidth:1.5,hoverBorderWidth:2}}
-    ]}},
-    options:{{responsive:true,maintainAspectRatio:false,
-      plugins:{{legend:{{display:false}},tooltip:{{backgroundColor:'#2a2a2a',borderColor:'#484848',borderWidth:1,
-        titleColor:'#9499b8',bodyColor:'#e8eaf6',padding:14,
-        titleFont:{{family:'DM Mono',size:11}},bodyFont:{{family:'DM Mono',size:12}},
-        callbacks:{{title:i=>fmtD(i[0].raw.x),label:i=>['  '+i.dataset.label,'  ₹'+i.raw.y.toLocaleString('en-IN'),'  '+i.raw.label.replace(/_/g,' ')]}}}}}},
-      scales:{{
-        x:{{type:'linear',min:mn-30*864e5,max:mx+30*864e5,
-          grid:{{color:'rgba(255,255,255,.06)',drawTicks:false}},
-          ticks:{{color:'#555a78',font:{{family:'DM Mono',size:10}},maxRotation:0,maxTicksLimit:12,
-            callback:v=>new Date(v).toLocaleDateString('en-GB',{{month:'short',year:'2-digit'}})}},
-          afterBuildTicks(a){{a.ticks=buildTicks(mn,mx,12).map(v=>({{value:v}}));}},
-          border:{{color:'#404040'}}}},
-        y:{{title:{{display:true,text:'Amount Invested (₹)',color:'#555a78',font:{{family:'DM Mono',size:10}}}},
-          grid:{{color:'rgba(255,255,255,.06)',drawTicks:false}},
-          ticks:{{color:'#555a78',font:{{family:'DM Mono',size:10}},callback:v=>v>=1000?'₹'+(v/1000).toFixed(0)+'k':'₹'+v,maxTicksLimit:8}},
-          border:{{color:'#404040'}}}}}}}}}}));
+  const makeTrace=(vendor,color)=>{{
+    const rows=RAW.filter(d=>d.vendor===vendor);
+    return {{x:rows.map(d=>d.iso),y:rows.map(d=>d.y),mode:'markers',name:vendor,
+      marker:{{size:rows.map(d=>radius(d.y)),color:color,opacity:.72,line:{{color:color,width:1}}}},
+      customdata:rows.map(d=>d.label),
+      hovertemplate:'%{{x|%d %b %Y}}<br>'+vendor+': ₹%{{y:,.0f}}<br>%{{customdata}}<extra></extra>'}};
+  }};
+  Plotly.newPlot('chart',[makeTrace('Axis','#f0a742'),makeTrace('DSP','#5bbcf8')],{{
+    margin:{{l:65,r:20,t:10,b:45}},paper_bgcolor:'transparent',plot_bgcolor:'transparent',
+    font:{{family:'DM Mono',color:'#888',size:10}},hovermode:'closest',showlegend:false,
+    xaxis:{{type:'date',gridcolor:'rgba(255,255,255,.06)',zeroline:false,tickformat:'%b %y',color:'#555a78'}},
+    yaxis:{{title:{{text:'Amount Invested (₹)',font:{{size:10}}}},range:[0,20000],
+      gridcolor:'rgba(255,255,255,.06)',zeroline:false,color:'#555a78',tickformat:'₹,.0f'}}
+  }},{{responsive:true,scrollZoom:true,displaylogo:false,
+    modeBarButtonsToAdd:['zoom2d','pan2d','resetScale2d'],modeBarButtonsToRemove:['lasso2d','select2d']}});
+}}
+function drawFundCharts(){{
+  if(fundChartsDrawn)return;
+  fundChartsDrawn=true;
+  FUND_RAW.forEach((fund,index)=>{{
+    const grid=document.getElementById('fund-grid-'+fund.vendor);
+    if(!grid)return;
+    if(grid.dataset.drawn!=='1')grid.dataset.drawn='1';
+    const card=document.createElement('div');
+    card.className='fund-card';
+    const header=document.createElement('div');
+    header.className='fund-card-hd';
+    const name=document.createElement('div');
+    name.className='fund-name';
+    name.textContent=fund.name;
+    const nav=document.createElement('div');
+    nav.className='fund-nav';
+    nav.textContent=fund.current_nav===null?'NAV unavailable':'NAV ₹'+fund.current_nav.toLocaleString('en-IN');
+    header.append(name,nav);
+    const chartWrap=document.createElement('div');
+    chartWrap.className='fund-cw';
+    chartWrap.id='fund-chart-'+index;
+    card.append(header,chartWrap);
+    grid.appendChild(card);
+    const dates=fund.points.map(p=>p.x);
+    const invested=fund.points.map(p=>p.y);
+    const traces=[{{x:dates,y:invested,mode:'markers',name:'Invested',
+      marker:{{size:9,color:'#c9933a',line:{{color:'#f0c477',width:1}}}},
+      hovertemplate:'Date: %{{x|%d %b %Y}}<br>Invested NAV: ₹%{{y:,.2f}}<extra></extra>'}}];
+    if(fund.current_nav!==null){{
+      traces.push({{x:[dates[0],dates[dates.length-1]],y:[fund.current_nav,fund.current_nav],
+        mode:'lines',name:'Current NAV',line:{{color:'#e05a5a',dash:'dot',width:2}},
+        hovertemplate:'Current NAV: ₹%{{y:,.2f}}<extra></extra>'}});
+    }}
+    Plotly.newPlot(chartWrap,traces,{{
+      margin:{{l:58,r:18,t:8,b:45}},paper_bgcolor:'transparent',plot_bgcolor:'transparent',
+      font:{{family:'DM Mono',color:'#888',size:10}},hovermode:'closest',
+      showlegend:fund.current_nav!==null,
+      legend:{{orientation:'h',y:1.12,x:0,font:{{size:10}}}},
+      xaxis:{{type:'date',gridcolor:'rgba(255,255,255,.06)',zeroline:false,
+        tickformat:'%b %y',color:'#555a78',rangeslider:{{visible:false}}}},
+      yaxis:{{title:{{text:'Invested NAV (₹)',font:{{size:10}}}},rangemode:'tozero',
+        gridcolor:'rgba(255,255,255,.06)',zeroline:false,color:'#555a78',tickformat:'₹,.0f'}}
+    }},{{responsive:true,scrollZoom:true,displaylogo:false,
+      modeBarButtonsToAdd:['zoom2d','pan2d','resetScale2d'],modeBarButtonsToRemove:['lasso2d','select2d']}});
+  }});
 }}
 </script></body></html>"""
 
-    st.components.v1.html(HTML, height=1800, scrolling=True)
+    component_height = max(1800, 720 + ((len(fund_plots) + 1) // 2) * 430)
+    st.components.v1.html(HTML, height=component_height, scrolling=True)

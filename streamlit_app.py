@@ -29,7 +29,7 @@ inject_styles()
 # ══════════════════════════════════════════════════════════════════════════
 
 st.markdown("""
-<div style="margin-bottom:24px;">
+<div style="margin-bottom:10px;">
   <div style="font-family:'Fraunces',Georgia,serif;font-size:2.2rem;font-weight:400;
        color:#fff;letter-spacing:-.5px;line-height:1.1;">
     Portfolio <em style="font-style:italic;color:#c9933a;font-weight:300;">Tracker</em>
@@ -53,7 +53,7 @@ with tab_mf:
     mf_file = st.file_uploader(
         "Upload MF Tracker CSV",
         type=["csv"], key="mf_upload",
-        help="Expected columns: Vendor, Active, N Identifier, F Identifier, Date, Invested Amount, Current Amount, Profit, Absolute Profit %, XIRR",
+        help="Expected columns: Vendor, Active, N Identifier, F Identifier, Date, Invested Amount, Current Amount, Profit, Absolute Profit %, XIRR. Optional: NAV",
     )
     if mf_file:
         try:
@@ -72,7 +72,7 @@ with tab_mf:
           Upload a CSV above to view your Mutual Fund holdings &amp; investment journey<br>
           <span style="color:#333;font-size:.7rem;">
             Vendor · Active · N Identifier · F Identifier · Date<br>
-            Invested Amount · Current Amount · Profit · Absolute Profit % · XIRR
+            Invested Amount · Current Amount · Profit · Absolute Profit % · XIRR · NAV (optional)
           </span>
         </div>""", unsafe_allow_html=True)
 

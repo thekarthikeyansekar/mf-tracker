@@ -13,6 +13,8 @@ def load_mf_data(uploaded_file):
         elif "n identifier" in cl:                   col_map["n_id"] = c
         elif "invested amount" in cl:                col_map["invested"] = c
         elif "current amount" in cl:                 col_map["current"] = c
+        elif cl == "bought nav" :                    col_map["bought_nav"] = c
+        elif cl == "nav" or "current nav" in cl:     col_map["nav"] = c
         elif "xirr" in cl:                           col_map["xirr"] = c
         elif cl.startswith("profit") and "%" not in cl: col_map["pnl"] = c
         elif "absolute profit" in cl:                col_map["pnl_pct"] = c
@@ -28,6 +30,8 @@ def load_mf_data(uploaded_file):
     df2["folio"]    = df.get(col_map.get("folio", ""), "")
     df2["invested"] = df.get(col_map.get("invested", ""), 0).apply(clean_num)
     df2["current"]  = df.get(col_map.get("current", ""), 0).apply(clean_num)
+    df2["bought_nav"]= df.get(col_map.get("bought_nav", ""), 0).apply(clean_num)
+    df2["nav"]      = df.get(col_map.get("nav", ""), 0).apply(clean_num)
     df2["pnl"]      = df.get(col_map.get("pnl", ""), 0).apply(clean_num)
     df2["pnl_pct"]  = df.get(col_map.get("pnl_pct", ""), 0).apply(clean_num)
     df2["xirr_raw"] = df.get(col_map.get("xirr", ""), "0%")
