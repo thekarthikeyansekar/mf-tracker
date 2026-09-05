@@ -216,11 +216,11 @@ def render_nps_tab(df):
     ))
 
     fig_0.update_layout(
-        template="plotly_dark", paper_bgcolor="#1c1c1c", plot_bgcolor="#262626",
-        font=dict(family="DM Mono, monospace", size=11, color="#ccc"),
+        template="plotly_white", paper_bgcolor="#f5f7f8", plot_bgcolor="#ffffff",
+        font=dict(family="DM Mono, monospace", size=11, color="#334e68"),
         margin=dict(l=40,r=20,t=20,b=40), height=320,
-        yaxis=dict(gridcolor="rgba(255,255,255,0.06)", zeroline=False, tickprefix="₹"),
-        xaxis=dict(gridcolor="rgba(255,255,255,0.04)", zeroline=False, type="category"),
+        yaxis=dict(gridcolor="#e1e8ed", zeroline=False, tickprefix="₹"),
+        xaxis=dict(gridcolor="#e8eef1", zeroline=False, type="category"),
     )
     st.plotly_chart(fig_0, width='stretch')
 
@@ -252,11 +252,11 @@ def render_nps_tab(df):
         # secondary_y=True
     ))
     fig_0_2.update_layout(
-        template="plotly_dark", paper_bgcolor="#1c1c1c", plot_bgcolor="#262626",
-        font=dict(family="DM Mono, monospace", size=11, color="#ccc"),
+        template="plotly_white", paper_bgcolor="#f5f7f8", plot_bgcolor="#ffffff",
+        font=dict(family="DM Mono, monospace", size=11, color="#334e68"),
         margin=dict(l=40,r=20,t=20,b=40), height=320,
-        yaxis=dict(gridcolor="rgba(255,255,255,0.06)", zeroline=False),
-        xaxis=dict(gridcolor="rgba(255,255,255,0.04)", zeroline=False, type="category"),
+        yaxis=dict(gridcolor="#e1e8ed", zeroline=False),
+        xaxis=dict(gridcolor="#e8eef1", zeroline=False, type="category"),
     )
   
     st.plotly_chart(fig_0_2, width='stretch')
@@ -299,16 +299,16 @@ def render_nps_tab(df):
     ), secondary_y=True)
 
     fig1.update_layout(
-        template="plotly_dark", paper_bgcolor="#1c1c1c", plot_bgcolor="#262626",
-        font=dict(family="DM Mono, monospace", size=11, color="#cccccc"),
-        legend=dict(bgcolor="rgba(30,30,30,0.9)", bordercolor="#404040",
+        template="plotly_white", paper_bgcolor="#f5f7f8", plot_bgcolor="#ffffff",
+        font=dict(family="DM Mono, monospace", size=11, color="#334e68"),
+        legend=dict(bgcolor="rgba(255,255,255,0.9)", bordercolor="#ccd6dc",
                     borderwidth=1, font=dict(size=10)),
         margin=dict(l=60,r=60,t=20,b=50), height=460, hovermode="x unified",
-        xaxis=dict(gridcolor="rgba(255,255,255,0.06)", zeroline=False),
-        yaxis=dict(title="NAV (₹)", gridcolor="rgba(255,255,255,0.06)",
+        xaxis=dict(gridcolor="#e1e8ed", zeroline=False),
+        yaxis=dict(title="NAV (₹)", gridcolor="#e1e8ed",
                    zeroline=False, tickprefix="₹"),
         yaxis2=dict(title="Units Acquired", overlaying="y", side="right",
-                    gridcolor="rgba(255,255,255,0.02)", zeroline=False),
+                    gridcolor="#eef2f4", zeroline=False),
         barmode="overlay",
     )
     st.plotly_chart(fig1, width='stretch')
@@ -338,13 +338,13 @@ def render_nps_tab(df):
     ), secondary_y=True)
 
     fig2.update_layout(
-        template="plotly_dark", paper_bgcolor="#1c1c1c", plot_bgcolor="#262626",
-        font=dict(family="DM Mono, monospace", size=11, color="#cccccc"),
-        legend=dict(bgcolor="rgba(30,30,30,0.9)", bordercolor="#404040",
+        template="plotly_white", paper_bgcolor="#f5f7f8", plot_bgcolor="#ffffff",
+        font=dict(family="DM Mono, monospace", size=11, color="#334e68"),
+        legend=dict(bgcolor="rgba(255,255,255,0.9)", bordercolor="#ccd6dc",
                     borderwidth=1, font=dict(size=10)),
         margin=dict(l=60,r=60,t=20,b=50), height=380, hovermode="x unified",
-        xaxis=dict(gridcolor="rgba(255,255,255,0.06)", zeroline=False),
-        yaxis=dict(title="Amount per Month (₹)", gridcolor="rgba(255,255,255,0.06)",
+        xaxis=dict(gridcolor="#e1e8ed", zeroline=False),
+        yaxis=dict(title="Amount per Month (₹)", gridcolor="#e1e8ed",
                    zeroline=False, tickprefix="₹"),
         yaxis2=dict(title="Cumulative Invested (₹)", overlaying="y", side="right",
                     zeroline=False, tickprefix="₹"),
@@ -389,8 +389,11 @@ def render_nps_tab(df):
 
     fig.update_layout(
         barmode="group",
-        template="plotly_dark",
-        yaxis=dict(title="₹ Amount", tickprefix="₹"),
+        template="plotly_white",
+        paper_bgcolor="#f5f7f8", plot_bgcolor="#ffffff",
+        font=dict(family="DM Mono, monospace", size=11, color="#334e68"),
+        yaxis=dict(title="₹ Amount", tickprefix="₹", gridcolor="#e1e8ed"),
+        xaxis=dict(gridcolor="#e8eef1"),
         hovermode="x unified"
     )
     st.plotly_chart(fig, width='stretch')

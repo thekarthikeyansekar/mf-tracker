@@ -31,8 +31,8 @@ inject_styles()
 st.markdown("""
 <div style="margin-bottom:10px;">
   <div style="font-family:'Fraunces',Georgia,serif;font-size:2.2rem;font-weight:400;
-       color:#fff;letter-spacing:-.5px;line-height:1.1;">
-    Portfolio <em style="font-style:italic;color:#c9933a;font-weight:300;">Tracker</em>
+         color:#17212b;letter-spacing:-.5px;line-height:1.1;">
+     Portfolio <em style="font-style:italic;color:#a86616;font-weight:300;">Tracker</em>
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -63,10 +63,10 @@ with tab_mf:
             st.exception(e)
     else:
         st.markdown("""
-        <div style="text-align:center;padding:70px 0 50px;color:#444;
+        <div style="text-align:center;padding:70px 0 50px;color:#52606d;
              font-family:'DM Mono',monospace;font-size:.8rem;letter-spacing:.08em;line-height:2;">
           Upload a CSV above to view your Mutual Fund holdings &amp; investment journey<br>
-          <span style="color:#333;font-size:.7rem;">
+          <span style="color:#7b8794;font-size:.7rem;">
             Vendor · Active · N Identifier · F Identifier · Date<br>
             Invested Amount · Current Amount · Profit · Absolute Profit % · XIRR · NAV (optional)
           </span>
@@ -92,10 +92,10 @@ with tab_nps:
             st.exception(e)
     else:
         st.markdown("""
-        <div style="text-align:center;padding:70px 0 50px;color:#444;
+        <div style="text-align:center;padding:70px 0 50px;color:#52606d;
              font-family:'DM Mono',monospace;font-size:.8rem;letter-spacing:.08em;line-height:2;">
           Upload a CSV above to view your NPS investment charts<br>
-          <span style="color:#333;font-size:.7rem;">
+          <span style="color:#7b8794;font-size:.7rem;">
             Year · Category · Fund Name · Date · Particulars · Amount · NAV · Units
           </span>
         </div>""", unsafe_allow_html=True)

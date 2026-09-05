@@ -156,14 +156,14 @@ def render_mf_tab(df):
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 <style>
-:root{{--bg:#1c1c1c;--sf:#262626;--sf2:#2f2f2f;--sf3:#383838;--bd:#404040;--bd2:#505050;
-  --ac:#c9933a;--adim:rgba(201,147,58,.14);--dc:#5aaee0;--ddim:rgba(90,174,224,.14);
-  --gain:#4ec98a;--loss:#e05a5a;--t1:#fff;--t2:#ccc;--t3:#888;--r:14px;}}
+:root{{--bg:#f5f7f8;--sf:#ffffff;--sf2:#eef2f4;--sf3:#e3e9ed;--bd:#ccd6dc;--bd2:#9aaab5;
+  --ac:#a86616;--adim:rgba(168,102,22,.12);--dc:#2374a8;--ddim:rgba(35,116,168,.12);
+  --gain:#087f5b;--loss:#b42318;--t1:#17212b;--t2:#425466;--t3:#52606d;--r:14px;}}
 *{{margin:0;padding:0;box-sizing:border-box;}}
 body{{background:var(--bg);color:var(--t1);font-family:'Outfit',sans-serif;}}
 .blob{{position:fixed;border-radius:50%;filter:blur(110px);pointer-events:none;z-index:0;}}
-.b1{{width:600px;height:600px;background:rgba(201,147,58,.06);top:-180px;left:-180px;}}
-.b2{{width:500px;height:500px;background:rgba(90,174,224,.06);bottom:-150px;right:-120px;}}
+.b1{{width:600px;height:600px;background:rgba(168,102,22,.05);top:-180px;left:-180px;}}
+.b2{{width:500px;height:500px;background:rgba(35,116,168,.05);bottom:-150px;right:-120px;}}
 .wrap{{position:relative;z-index:1;width:100%;max-width:none;margin:0;padding:32px clamp(24px,4vw,64px) 72px;}}
 .hd{{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:20px;flex-wrap:wrap;}}
 .hd h1{{font-family:'Fraunces',serif;font-size:2rem;font-weight:400;letter-spacing:-.5px;}}
@@ -319,10 +319,10 @@ function drawChart(){{
   }};
   Plotly.newPlot('chart',[makeTrace('Axis','#f0a742'),makeTrace('DSP','#5bbcf8')],{{
     margin:{{l:65,r:20,t:10,b:45}},paper_bgcolor:'transparent',plot_bgcolor:'transparent',
-    font:{{family:'DM Mono',color:'#888',size:10}},hovermode:'closest',showlegend:false,
-    xaxis:{{type:'date',gridcolor:'rgba(255,255,255,.06)',zeroline:false,tickformat:'%b %y',color:'#555a78'}},
+    font:{{family:'DM Mono',color:'#52606d',size:10}},hovermode:'closest',showlegend:false,
+    xaxis:{{type:'date',gridcolor:'#e1e8ed',zeroline:false,tickformat:'%b %y',color:'#52606d'}},
     yaxis:{{title:{{text:'Amount Invested (₹)',font:{{size:10}}}},range:[0,20000],
-      gridcolor:'rgba(255,255,255,.06)',zeroline:false,color:'#555a78',tickformat:'₹,.0f'}}
+      gridcolor:'#e1e8ed',zeroline:false,color:'#52606d',tickformat:'₹,.0f'}}
   }},{{responsive:true,scrollZoom:true,displaylogo:false,
     modeBarButtonsToAdd:['zoom2d','pan2d','resetScale2d'],modeBarButtonsToRemove:['lasso2d','select2d']}});
 }}
@@ -361,13 +361,13 @@ function drawFundCharts(){{
     }}
     Plotly.newPlot(chartWrap,traces,{{
       margin:{{l:58,r:18,t:8,b:45}},paper_bgcolor:'transparent',plot_bgcolor:'transparent',
-      font:{{family:'DM Mono',color:'#888',size:10}},hovermode:'closest',
+      font:{{family:'DM Mono',color:'#52606d',size:10}},hovermode:'closest',
       showlegend:fund.current_nav!==null,
       legend:{{orientation:'h',y:1.12,x:0,font:{{size:10}}}},
-      xaxis:{{type:'date',gridcolor:'rgba(255,255,255,.06)',zeroline:false,
-        tickformat:'%b %y',color:'#555a78',rangeslider:{{visible:false}}}},
+      xaxis:{{type:'date',gridcolor:'#e1e8ed',zeroline:false,
+        tickformat:'%b %y',color:'#52606d',rangeslider:{{visible:false}}}},
       yaxis:{{title:{{text:'Invested NAV (₹)',font:{{size:10}}}},rangemode:'tozero',
-        gridcolor:'rgba(255,255,255,.06)',zeroline:false,color:'#555a78',tickformat:'₹,.0f'}}
+        gridcolor:'#e1e8ed',zeroline:false,color:'#52606d',tickformat:'₹,.0f'}}
     }},{{responsive:true,scrollZoom:true,displaylogo:false,
       modeBarButtonsToAdd:['zoom2d','pan2d','resetScale2d'],modeBarButtonsToRemove:['lasso2d','select2d']}});
   }});
