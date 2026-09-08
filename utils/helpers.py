@@ -16,6 +16,13 @@ def parse_date(val):
             pass
     return None
 
+def fmt_int(val):
+    try:
+        v = int(val)
+        return f"{v:.0f}"
+    except:
+        return str(val)
+
 def fmt_inr(val):
     try:
         v = float(val)
@@ -24,6 +31,13 @@ def fmt_inr(val):
     except:
         return str(val)
 
+def fmt_float(val):
+    try:
+        v = float(val)
+        return f"{v:.2f}"
+    except:
+        return str(val)
+    
 def fmt_pct(val):
     try:
         v = float(val)

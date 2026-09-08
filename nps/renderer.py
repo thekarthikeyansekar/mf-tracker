@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.helpers import fmt_inr, fmt_pct
+from utils.helpers import fmt_inr, fmt_float
 from utils.finance import xirr, fetch_latest_nav
 from config.constants import SCHEMES
 from datetime import datetime
@@ -98,7 +98,7 @@ def render_nps_tab(df):
     c2.metric(
         "Est. Current Value",
         fmt_inr(total_value),
-        delta=f"{fmt_inr(profit)} ({fmt_pct(profit_pct)})"
+        delta=f"{fmt_inr(profit)} ({fmt_float(profit_pct)})"
     )
 
     # c2.metric("Total Units",        f"{total_units:,.2f}")
@@ -114,7 +114,7 @@ def render_nps_tab(df):
         a_c3.metric(f"{r['Scheme']} Current Value", fmt_inr(r["Current Value"]))
         a_c4.metric(f"{r['Scheme']} Invested", fmt_inr(r["Invested"]))
         a_c5.metric(f"{r['Scheme']} Profit", fmt_inr(r["Profit"]))
-        a_c6.metric(f"{r['Scheme']} Profit %", fmt_pct(r["Profit_Perc"]))
+        a_c6.metric(f"{r['Scheme']} Profit %", fmt_float(r["Profit_Perc"]))
         # a_c7.metric(f"{r['Scheme']} XIRR", fmt_pct(r["XIRR"]))
 
     fc1, fc2 = st.columns([3, 1])
@@ -132,7 +132,7 @@ def render_nps_tab(df):
 
     dff = dff.sort_values("date_parsed")
 
-    dff["current_value"] = dff["units"] * dff["current_nav"]
+    dff["current_value"] = dff["units"] * dff["bought_nav"]
     dff["profit"] = dff["current_value"] - dff["amount"]
 
     COLORS = {
@@ -216,11 +216,9 @@ def render_nps_tab(df):
     ))
 
     fig_0.update_layout(
-        template="plotly_white", paper_bgcolor="#f5f7f8", plot_bgcolor="#ffffff",
-        font=dict(family="DM Mono, monospace", size=11, color="#334e68"),
         margin=dict(l=40,r=20,t=20,b=40), height=320,
-        yaxis=dict(gridcolor="#e1e8ed", zeroline=False, tickprefix="₹"),
-        xaxis=dict(gridcolor="#e8eef1", zeroline=False, type="category"),
+        yaxis=dict(zeroline=False, tickprefix="₹"),
+        xaxis=dict(zeroline=False, type="category"),
     )
     st.plotly_chart(fig_0, width='stretch')
 
@@ -234,7 +232,7 @@ def render_nps_tab(df):
         x=yearly["year"], y=yearly["profit_per"],
         marker_color="#5aaee0",
         marker_line_color="rgba(90,174,224,0.5)", marker_line_width=1,
-        text=[fmt_pct(v) for v in yearly["profit_per"]],
+        text=[fmt_float(v) for v in yearly["profit_per"]],
         textposition="outside",
         textfont=dict(size=10, color="#cccccc"),
         hovertemplate="%{y:,.0f}<extra></extra>",
@@ -246,17 +244,15 @@ def render_nps_tab(df):
         y=yearly["profit_per_yearly"],
         name="Profit % Yearly",
         marker_color="rgba(78,201,138,0.7)",
-        text=[fmt_pct(v) for v in yearly["profit_per_yearly"]],
+        text=[fmt_float(v) for v in yearly["profit_per_yearly"]],
         textposition="outside",
         hovertemplate="%{y:,.0f}<extra></extra>"
         # secondary_y=True
     ))
     fig_0_2.update_layout(
-        template="plotly_white", paper_bgcolor="#f5f7f8", plot_bgcolor="#ffffff",
-        font=dict(family="DM Mono, monospace", size=11, color="#334e68"),
         margin=dict(l=40,r=20,t=20,b=40), height=320,
-        yaxis=dict(gridcolor="#e1e8ed", zeroline=False),
-        xaxis=dict(gridcolor="#e8eef1", zeroline=False, type="category"),
+        yaxis=dict(zeroline=False),
+        xaxis=dict(zeroline=False, type="category"),
     )
   
     st.plotly_chart(fig_0_2, width='stretch')
@@ -299,16 +295,12 @@ def render_nps_tab(df):
     ), secondary_y=True)
 
     fig1.update_layout(
-        template="plotly_white", paper_bgcolor="#f5f7f8", plot_bgcolor="#ffffff",
-        font=dict(family="DM Mono, monospace", size=11, color="#334e68"),
-        legend=dict(bgcolor="rgba(255,255,255,0.9)", bordercolor="#ccd6dc",
-                    borderwidth=1, font=dict(size=10)),
+        legend=dict(borderwidth=1, font=dict(size=10)),
         margin=dict(l=60,r=60,t=20,b=50), height=460, hovermode="x unified",
-        xaxis=dict(gridcolor="#e1e8ed", zeroline=False),
-        yaxis=dict(title="NAV (₹)", gridcolor="#e1e8ed",
-                   zeroline=False, tickprefix="₹"),
+        xaxis=dict(zeroline=False),
+        yaxis=dict(title="NAV (₹)", zeroline=False, tickprefix="₹"),
         yaxis2=dict(title="Units Acquired", overlaying="y", side="right",
-                    gridcolor="#eef2f4", zeroline=False),
+                zeroline=False),
         barmode="overlay",
     )
     st.plotly_chart(fig1, width='stretch')
@@ -338,14 +330,10 @@ def render_nps_tab(df):
     ), secondary_y=True)
 
     fig2.update_layout(
-        template="plotly_white", paper_bgcolor="#f5f7f8", plot_bgcolor="#ffffff",
-        font=dict(family="DM Mono, monospace", size=11, color="#334e68"),
-        legend=dict(bgcolor="rgba(255,255,255,0.9)", bordercolor="#ccd6dc",
-                    borderwidth=1, font=dict(size=10)),
+        legend=dict(borderwidth=1, font=dict(size=10)),
         margin=dict(l=60,r=60,t=20,b=50), height=380, hovermode="x unified",
-        xaxis=dict(gridcolor="#e1e8ed", zeroline=False),
-        yaxis=dict(title="Amount per Month (₹)", gridcolor="#e1e8ed",
-                   zeroline=False, tickprefix="₹"),
+        xaxis=dict(zeroline=False),
+        yaxis=dict(title="Amount per Month (₹)", zeroline=False, tickprefix="₹"),
         yaxis2=dict(title="Cumulative Invested (₹)", overlaying="y", side="right",
                     zeroline=False, tickprefix="₹"),
         barmode="overlay",
@@ -389,71 +377,9 @@ def render_nps_tab(df):
 
     fig.update_layout(
         barmode="group",
-        template="plotly_white",
-        paper_bgcolor="#f5f7f8", plot_bgcolor="#ffffff",
-        font=dict(family="DM Mono, monospace", size=11, color="#334e68"),
-        yaxis=dict(title="₹ Amount", tickprefix="₹", gridcolor="#e1e8ed"),
-        xaxis=dict(gridcolor="#e8eef1"),
+        yaxis=dict(title="₹ Amount", tickprefix="₹"),
         hovermode="x unified"
     )
     st.plotly_chart(fig, width='stretch')
-
-    # monthly = (
-    #     dff.groupby("ym")
-    #     .agg(
-    #         p_invested=("nav", "mean"),
-    #         p_current_value=("current_nav", "mean")
-    #     )
-    #     .reset_index()
-    #     .sort_values("ym")
-    # )
-
-    # fig = go.Figure()
-
-    # fig.add_trace(go.Bar(
-    #     x=monthly["ym"],
-    #     y=monthly["p_invested"],
-    #     name="Invested",
-    #     marker_color="rgba(201,147,58,0.6)",
-    # ))
-
-    # fig.add_trace(go.Bar(
-    #     x=monthly["ym"],
-    #     y=monthly["p_current_value"],
-    #     name="Current NAV",
-    #     marker_color="rgba(78,201,138,0.7)",
-    # ))
-
-    # fig.update_layout(
-    #     barmode="group",
-    #     template="plotly_dark",
-    #     yaxis=dict(title="₹ NAV", tickprefix="₹"),
-    #     hovermode="x unified"
-    # )
-    # st.plotly_chart(fig, width='stretch')
-    
-
-    # ── Row: donut + yearly bar ───────────────────────────────────────────
-    # ca, cb = st.columns(2)
-    # with ca:
-        # st.markdown("### By Category")
-        # cg = dff.groupby("category")["amount"].sum().reset_index()
-        # fig3 = go.Figure(go.Pie(
-        #     labels=cg["category"], values=cg["amount"],
-        #     marker=dict(colors=[COLORS.get(c,"#888") for c in cg["category"]],
-        #                 line=dict(color="#1c1c1c", width=2)),
-        #     hole=0.44,
-        #     textfont=dict(family="DM Mono, monospace", size=11),
-        #     hovertemplate="<b>%{label}</b><br>₹%{value:,.0f}  %{percent}<extra></extra>",
-        # ))
-        # fig3.update_layout(
-        #     paper_bgcolor="#1c1c1c", margin=dict(l=10,r=10,t=20,b=10),
-        #     height=320, font=dict(family="DM Mono, monospace", size=11, color="#ccc"),
-        #     legend=dict(bgcolor="rgba(30,30,30,0.9)", bordercolor="#404040",
-        #                 borderwidth=1, font=dict(size=10)),
-        # )
-        # st.plotly_chart(fig3, width='stretch')
-
-    # with cb:
 
     
