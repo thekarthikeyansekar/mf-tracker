@@ -80,8 +80,6 @@ def analyze_nav_advisor(df):
 				* 100
 			)
 			above_df = above_df.sort_values(by="loss_pct", ascending=False)
-			st.text(fund)
-			st.dataframe(above_df)
 			
 			for loss_threshold in LOSS_PCT_THRESHOLDS:
 				above_dff = above_df[above_df["loss_pct"] >= loss_threshold]
@@ -97,8 +95,6 @@ def analyze_nav_advisor(df):
 		# above_df = above_df[above_df["delta"] <= -0.40]
 	
 		rows.append(tmp_dict)
-
-		st.dataframe(pd.DataFrame(rows))
 
 	return pd.DataFrame(
 		rows,

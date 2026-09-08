@@ -31,7 +31,7 @@ with tab_mf:
     mf_file = st.file_uploader(
         "Upload MF Tracker CSV",
         type=["csv"], key="mf_upload",
-        help="Expected columns: Vendor, Active, N Identifier, F Identifier, Date, Invested Amount, Current Amount, Profit, Absolute Profit %, XIRR. Optional: NAV",
+        help="Expected columns: Vendor, Active, N Identifier, AMFI Scheme Code, F Identifier, Date, Invested Amount, Current Amount, Profit, Absolute Profit %, XIRR. Optional: NAV",
     )
     if mf_file:
         try:
