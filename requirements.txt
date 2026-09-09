@@ -6,3 +6,4 @@ seaborn
 plotly
 ipykernel
 scipy
+streamlit-antd-components #https://github.com/nicedouble/StreamlitAntdComponentsDemo

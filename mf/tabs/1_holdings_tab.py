@@ -36,8 +36,9 @@ from utils.helpers import fmt_inr, fmt_pct, fmt_float
 
 
 def _fund_table(rows_df):
-    table = rows_df[["n_id", "invested", "current", "xirr", "pnl", "pnl_pct"]].copy()
-    table.columns = ["Fund", "Invested", "Current", "XIRR", "PnL", "PnL %"]
+    table = rows_df[["n_id", "current_nav", "invested", "current", "xirr", "pnl", "pnl_pct"]].copy()
+    table.columns = ["Fund", "Current NAV", "Invested", "Current", "XIRR", "PnL", "PnL %"]
+    table["Current NAV"] = np.round(table["Current NAV"], 2)
     return table
 
 
@@ -159,6 +160,8 @@ def _show_vendor_holdings(df, vendor):
         for col in ["Invested", "Current"]:
             fund_table[col] = fund_table[col].astype(int)    
             fund_table[col] = fund_table[col].apply(lambda x : fmt_inr(x))
+
+        fund_table["Current NAV"] = fund_table["Current NAV"].apply(lambda x : fmt_float(x))
 
         # Arrow Addition
         for col in ["XIRR", "PnL", "PnL %"]:
